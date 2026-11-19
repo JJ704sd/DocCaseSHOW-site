@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "doccase-preprocessing"
+version = "0.1.0"
+description = "Traceable document input preparation for email parsing"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pypdf==6.16.1", "pillow==12.3.0"]
+
+[project.scripts]
+doccase-preprocess = "doccase_preprocessing.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.14,<1", "openpyxl==3.1.5"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--basetemp=.pytest-tmp"
+pythonpath = ["examples"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/doccase_preprocessing"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples", "docs", "README.md", "pyproject.toml", "uv.lock"]

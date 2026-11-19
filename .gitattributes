@@ -1,0 +1,4 @@
+# Keep review-package source files byte-for-byte identical after checkout.
+*.mmd -text whitespace=cr-at-eol
+*.svg -text whitespace=cr-at-eol
+*.html -text

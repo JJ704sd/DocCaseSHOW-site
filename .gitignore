@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+**/private/
+**/output/
+**/.venv/
+**/.uv-cache/
+**/.pytest_cache/
+**/.pytest-tmp*/
+**/.ruff_cache/
+**/__pycache__/
+*.py[cod]
+*.eml
+*.msg

@@ -1,0 +1,4310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "邮件解析结果：评审草案 0.1.0",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "email_ref_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intent": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "enum": [
+            "inquiry",
+            "other",
+            "undetermined"
+          ]
+        },
+        "subtypes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "new",
+              "supplement",
+              "change",
+              "quote_reply",
+              "negotiation",
+              "followup",
+              "quote_acceptance",
+              "marketing",
+              "notification",
+              "booking_operation",
+              "other",
+              "undetermined"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "basis": {
+          "type": "string"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "value",
+        "subtypes",
+        "basis",
+        "source_ids",
+        "confidence",
+        "policy_version"
+      ],
+      "additionalProperties": false
+    },
+    "processing": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "not_parsed",
+            "completed",
+            "partial",
+            "failed"
+          ]
+        },
+        "material_coverage": {
+          "enum": [
+            "complete",
+            "partial",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "material_coverage"
+      ],
+      "additionalProperties": false
+    },
+    "inquiries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/inquiry"
+      }
+    },
+    "matched": {
+      "$ref": "#/$defs/matched"
+    },
+    "missing_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/material_result"
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/change"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/error"
+      }
+    },
+    "suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "followup_question"
+          },
+          "field": {
+            "type": "string"
+          },
+          "question_text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "field",
+          "question_text"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "email_ref_id",
+    "intent",
+    "processing",
+    "inquiries",
+    "matched",
+    "missing_fields",
+    "issues",
+    "sources",
+    "materials",
+    "changes",
+    "errors",
+    "suggestions"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "raw_value": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "text_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "number_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "integer_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "boolean_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "boolean"
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "date_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "format": "date"
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "kg_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "const": "kg"
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cm_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "const": "cm"
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cbm_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "const": "CBM"
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "density_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unit": {
+          "const": "kg/CBM"
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cargo_type_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "general",
+                "dangerous",
+                "non_dangerous"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "enum": [
+                "general",
+                "dangerous",
+                "non_dangerous"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "general",
+                  "dangerous",
+                  "non_dangerous"
+                ]
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "enum": [
+                  "general",
+                  "dangerous",
+                  "non_dangerous"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "package_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "carton",
+                "pallet",
+                "wooden_case",
+                "other"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "enum": [
+                "carton",
+                "pallet",
+                "wooden_case",
+                "other"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "carton",
+                  "pallet",
+                  "wooden_case",
+                  "other"
+                ]
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "enum": [
+                  "carton",
+                  "pallet",
+                  "wooden_case",
+                  "other"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ready_state_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "ready",
+                "not_ready"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "enum": [
+                "ready",
+                "not_ready"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "ready",
+                  "not_ready"
+                ]
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "enum": [
+                  "ready",
+                  "not_ready"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mode_field": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "air",
+                "sea",
+                "road",
+                "rail",
+                "multimodal"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "known",
+            "missing",
+            "uncertain",
+            "conflict",
+            "not_applicable"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "extracted",
+            "calculated",
+            "default",
+            "unknown"
+          ]
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "raw_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/raw_value"
+          }
+        },
+        "qualifier": {
+          "enum": [
+            "exact",
+            "approximate",
+            "less_than",
+            "less_or_equal",
+            "greater_than",
+            "greater_or_equal",
+            "range",
+            "unknown"
+          ]
+        },
+        "upper_value": {
+          "anyOf": [
+            {
+              "enum": [
+                "air",
+                "sea",
+                "road",
+                "rail",
+                "multimodal"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "confidence",
+        "status",
+        "origin",
+        "source_ids",
+        "raw_values"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "known"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "air",
+                  "sea",
+                  "road",
+                  "rail",
+                  "multimodal"
+                ]
+              },
+              "origin": {
+                "enum": [
+                  "extracted",
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted"
+              },
+              "value": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true,
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "enum": [
+                  "calculated",
+                  "default"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "calculated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "input_paths"
+            ],
+            "properties": {
+              "input_paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "qualifier": {
+                "const": "range"
+              }
+            },
+            "required": [
+              "qualifier"
+            ]
+          },
+          "then": {
+            "required": [
+              "upper_value"
+            ],
+            "properties": {
+              "upper_value": {
+                "enum": [
+                  "air",
+                  "sea",
+                  "road",
+                  "rail",
+                  "multimodal"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "email_ref_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "subject",
+            "header",
+            "current_body",
+            "signature",
+            "quoted_body",
+            "attachment"
+          ]
+        },
+        "material_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "excerpt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "locator": {
+          "type": "object",
+          "properties": {
+            "json_pointer": {
+              "type": "string"
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sheet": {
+              "type": "string"
+            },
+            "cell_range": {
+              "type": "string"
+            },
+            "char_start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "char_end": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "region": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "location_status": {
+          "enum": [
+            "exact",
+            "excerpt_only",
+            "unavailable"
+          ]
+        }
+      },
+      "required": [
+        "source_id",
+        "email_ref_id",
+        "kind",
+        "material_id",
+        "excerpt",
+        "location_status"
+      ],
+      "additionalProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "properties": {
+        "issue_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "missing",
+            "uncertain",
+            "conflict",
+            "unread",
+            "processing_error"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ]
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "material_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "issue_id",
+        "category",
+        "code",
+        "severity",
+        "paths",
+        "source_ids",
+        "material_ids",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "material_result": {
+      "type": "object",
+      "properties": {
+        "email_ref_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "material_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "read",
+            "partial",
+            "failed",
+            "unsupported",
+            "filtered",
+            "not_read",
+            "skipped_irrelevant"
+          ]
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "affected_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "email_ref_id",
+        "material_id",
+        "state",
+        "reason",
+        "affected_paths"
+      ],
+      "additionalProperties": false
+    },
+    "package_count": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/package_field"
+        },
+        "count": {
+          "$ref": "#/$defs/integer_field"
+        }
+      },
+      "required": [
+        "type",
+        "count"
+      ],
+      "additionalProperties": false
+    },
+    "container": {
+      "type": "object",
+      "properties": {
+        "container_type": {
+          "$ref": "#/$defs/text_field"
+        },
+        "count": {
+          "$ref": "#/$defs/integer_field"
+        },
+        "relationship": {
+          "enum": [
+            "requested",
+            "alternative",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "container_type",
+        "count",
+        "relationship"
+      ],
+      "additionalProperties": false
+    },
+    "line": {
+      "type": "object",
+      "properties": {
+        "line_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "product_name": {
+          "$ref": "#/$defs/text_field"
+        },
+        "ctns": {
+          "$ref": "#/$defs/integer_field"
+        },
+        "package_type": {
+          "$ref": "#/$defs/package_field"
+        },
+        "length_cm": {
+          "$ref": "#/$defs/cm_field"
+        },
+        "width_cm": {
+          "$ref": "#/$defs/cm_field"
+        },
+        "height_cm": {
+          "$ref": "#/$defs/cm_field"
+        },
+        "unit_gross_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "unit_volume": {
+          "$ref": "#/$defs/cbm_field"
+        },
+        "line_gross_weight": {
+          "$ref": "#/$defs/kg_field",
+          "description": "整行毛重，不能直接填入 unit_gross_weight。",
+          "x-evidence": [
+            "F-AE5",
+            "F-AE13"
+          ]
+        },
+        "line_net_weight": {
+          "$ref": "#/$defs/kg_field",
+          "description": "整行净重；原文未明确行口径时仅保留原始观察。",
+          "x-evidence": [
+            "F-AD8"
+          ]
+        },
+        "unit_net_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "line_volume": {
+          "$ref": "#/$defs/cbm_field"
+        },
+        "quantity": {
+          "$ref": "#/$defs/number_field"
+        },
+        "quantity_unit": {
+          "$ref": "#/$defs/text_field"
+        },
+        "raw_observations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text_field"
+          }
+        }
+      },
+      "required": [
+        "line_id",
+        "product_name",
+        "ctns",
+        "package_type",
+        "length_cm",
+        "width_cm",
+        "height_cm",
+        "unit_gross_weight",
+        "unit_volume",
+        "line_gross_weight",
+        "line_net_weight",
+        "line_volume",
+        "raw_observations"
+      ],
+      "additionalProperties": false
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "gross_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "volume": {
+          "$ref": "#/$defs/cbm_field"
+        },
+        "package_counts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/package_count"
+          }
+        }
+      },
+      "required": [
+        "gross_weight",
+        "volume",
+        "package_counts"
+      ],
+      "additionalProperties": false
+    },
+    "requirement": {
+      "type": "object",
+      "properties": {
+        "requirement_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shipment_reference": {
+          "$ref": "#/$defs/text_field"
+        },
+        "destination_port": {
+          "$ref": "#/$defs/text_field"
+        },
+        "cargo_type": {
+          "$ref": "#/$defs/cargo_type_field"
+        },
+        "package_type": {
+          "$ref": "#/$defs/package_field"
+        },
+        "gross_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "volume": {
+          "$ref": "#/$defs/cbm_field"
+        },
+        "ctns": {
+          "$ref": "#/$defs/integer_field"
+        },
+        "density": {
+          "$ref": "#/$defs/density_field"
+        },
+        "location": {
+          "$ref": "#/$defs/text_field"
+        },
+        "trade_term": {
+          "$ref": "#/$defs/text_field"
+        },
+        "cargo_ready_time": {
+          "$ref": "#/$defs/date_field"
+        },
+        "remark": {
+          "$ref": "#/$defs/text_field"
+        },
+        "cargo_lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        },
+        "transport_mode": {
+          "$ref": "#/$defs/mode_field"
+        },
+        "pickup_address": {
+          "$ref": "#/$defs/text_field"
+        },
+        "cargo_ready_state": {
+          "$ref": "#/$defs/ready_state_field"
+        },
+        "cargo_ready_text": {
+          "$ref": "#/$defs/text_field"
+        },
+        "package_counts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/package_count"
+          }
+        },
+        "containers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/container"
+          }
+        },
+        "volumetric_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "chargeable_weight": {
+          "$ref": "#/$defs/kg_field"
+        },
+        "declared_totals": {
+          "$ref": "#/$defs/totals"
+        },
+        "computed_totals": {
+          "$ref": "#/$defs/totals"
+        },
+        "special_conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text_field"
+          }
+        }
+      },
+      "required": [
+        "requirement_id",
+        "shipment_reference",
+        "destination_port",
+        "cargo_type",
+        "package_type",
+        "gross_weight",
+        "volume",
+        "ctns",
+        "density",
+        "location",
+        "trade_term",
+        "cargo_ready_time",
+        "remark",
+        "cargo_lines",
+        "transport_mode",
+        "pickup_address",
+        "cargo_ready_state",
+        "cargo_ready_text",
+        "package_counts",
+        "containers",
+        "volumetric_weight",
+        "chargeable_weight",
+        "declared_totals",
+        "computed_totals",
+        "special_conditions"
+      ],
+      "additionalProperties": false
+    },
+    "inquiry": {
+      "type": "object",
+      "properties": {
+        "inquiry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "customer_company": {
+          "$ref": "#/$defs/text_field"
+        },
+        "contact_name": {
+          "$ref": "#/$defs/text_field"
+        },
+        "contact_phone": {
+          "$ref": "#/$defs/text_field"
+        },
+        "signature_email": {
+          "$ref": "#/$defs/text_field"
+        },
+        "cargo_type": {
+          "$ref": "#/$defs/cargo_type_field"
+        },
+        "trade_term": {
+          "$ref": "#/$defs/text_field"
+        },
+        "is_bulk": {
+          "$ref": "#/$defs/boolean_field"
+        },
+        "density": {
+          "$ref": "#/$defs/density_field"
+        },
+        "location": {
+          "$ref": "#/$defs/text_field"
+        },
+        "destination": {
+          "$ref": "#/$defs/text_field"
+        },
+        "remark": {
+          "$ref": "#/$defs/text_field"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requirement"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "inquiry_id",
+        "customer_company",
+        "contact_name",
+        "contact_phone",
+        "signature_email",
+        "cargo_type",
+        "trade_term",
+        "is_bulk",
+        "density",
+        "location",
+        "destination",
+        "remark",
+        "requirements"
+      ],
+      "additionalProperties": false
+    },
+    "change": {
+      "type": "object",
+      "properties": {
+        "change_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inquiry_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requirement_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "add",
+            "replace",
+            "remove",
+            "unresolved"
+          ]
+        },
+        "old_value": {},
+        "new_value": {},
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "applied": {
+          "type": "boolean"
+        },
+        "baseline_email_ref_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "change_id",
+        "inquiry_id",
+        "requirement_id",
+        "path",
+        "operation",
+        "old_value",
+        "new_value",
+        "source_ids",
+        "applied",
+        "baseline_email_ref_ids"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stage": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "stage",
+        "retryable"
+      ],
+      "additionalProperties": false
+    },
+    "matched": {
+      "type": "object",
+      "properties": {
+        "matched": {
+          "type": "boolean"
+        },
+        "matched_by": {
+          "enum": [
+            "thread",
+            "none"
+          ]
+        },
+        "inquiry_no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basis": {
+          "enum": [
+            "caller_hint",
+            "none"
+          ]
+        }
+      },
+      "required": [
+        "matched",
+        "matched_by",
+        "inquiry_no",
+        "version",
+        "basis"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "intent": {
+            "properties": {
+              "value": {
+                "enum": [
+                  "other",
+                  "undetermined"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "inquiries": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "processing": {
+            "properties": {
+              "state": {
+                "const": "completed"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "intent": {
+            "properties": {
+              "value": {
+                "const": "inquiry"
+              }
+            }
+          },
+          "inquiries": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "processing": {
+            "properties": {
+              "state": {
+                "const": "failed"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "errors": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "materials": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "enum": [
+                    "partial",
+                    "failed",
+                    "unsupported",
+                    "filtered",
+                    "not_read"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "processing": {
+            "properties": {
+              "material_coverage": {
+                "not": {
+                  "const": "complete"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

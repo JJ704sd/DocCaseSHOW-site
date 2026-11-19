@@ -1,0 +1,12 @@
+.venv/
+.uv-cache/
+.pytest_cache/
+.pytest-tmp*/
+.ruff_cache/
+__pycache__/
+*.egg-info/
+dist/
+output/
+
+# Local registries and source documents stay outside Git.
+/private/

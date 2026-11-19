@@ -1,0 +1,25 @@
+{
+  "task_id": "synthetic-preprocessing-001",
+  "email": {
+    "email_ref_id": "synthetic-mail-current",
+    "subject": "合成示例：请按附件报价",
+    "from_addr": "buyer@example.invalid",
+    "from_name": "Synthetic Buyer",
+    "to_addrs": ["sales@example.invalid"],
+    "sent_at": "2026-11-06T10:00:00+08:00",
+    "snippet": "数量改为3件，其余沿用上次",
+    "thread_headers": {
+      "message_id": "<synthetic-current@example.invalid>",
+      "in_reply_to": null,
+      "references": []
+    },
+    "body_text": "数量改为3件，其余沿用上次。附件105 kg each。请保留原单位。\n联系人：Synthetic Buyer",
+    "attachments": [
+      {
+        "filename": "packing-list.txt",
+        "mime": "text/plain",
+        "content_text": "Line | Quantity | Weight\nA | 3 pieces | 105 kg each\nDo not stack."
+      }
+    ]
+  }
+}

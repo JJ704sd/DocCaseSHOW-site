@@ -1,0 +1,24 @@
+{
+  "task_id": "architecture-integration-partial-001",
+  "email": {
+    "email_ref_id": "architecture-mail-001",
+    "subject": "合成联接样例：三箱货物及缺失装箱单",
+    "from_addr": "buyer@example.invalid",
+    "from_name": "Synthetic Buyer",
+    "to_addrs": ["sales@example.invalid"],
+    "sent_at": "2026-11-06T10:00:00+08:00",
+    "snippet": "本票L1：3箱，总毛重315 kg；体积见附件M2。",
+    "thread_headers": {
+      "message_id": "<architecture-mail-001@example.invalid>",
+      "in_reply_to": null,
+      "references": []
+    },
+    "body_text": "本票L1：3 cartons，Total G.W. 315 kg。L1体积见附件M2-packing-list.pdf。没有声明每箱同重。请报价。",
+    "attachments": [
+      {
+        "filename": "M2-packing-list.pdf",
+        "mime": "application/pdf"
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "example_kind": "synthetic_cross_document_acceptance_design",
+  "task_id": "architecture-integration-partial-001",
+  "input_ref": "partial-request.json",
+  "execution_boundary": "只实际执行当前预处理；Docling、字段抽取和输出交接均为预期设计，不是运行结果。",
+  "required_fields_defined_before_extraction": [
+    {"id": "REQ-CARTONS", "object": "正文明确标识的本票L1", "field": "ctns", "critical": true},
+    {"id": "REQ-LINE-GW", "object": "正文明确标识的本票L1", "field": "line_gross_weight", "critical": true},
+    {"id": "REQ-LINE-VOLUME", "object": "正文明确标识的本票L1", "field": "line_volume", "critical": true}
+  ],
+  "preprocessing_expectations": {
+    "schema_version": "doccase-preprocessing/0.1",
+    "state": "partial",
+    "registered": 2,
+    "ready": 1,
+    "blocked": 1,
+    "unique_parse_tasks": 1,
+    "body_representation": "provided_text",
+    "body_original": null,
+    "planned_parser_version": "unbound",
+    "parse_task_execution_state": "not_started",
+    "parsing_completed": false,
+    "business_fields_verified": false
+  },
+  "downstream_expectations_not_executed": {
+    "entry": "主通道接入器核验清单和content引用，为对应route绑定已验证执行配置；未绑定时不启动。",
+    "evidence": "正文事实定位到已提供文本及其hash，不伪造原始邮件或缺失PDF的hash/页码。",
+    "ctns": 3,
+    "line_gross_weight_kg": 315,
+    "unit_gross_weight_kg": null,
+    "line_volume": null,
+    "missing_dependency": "正文明确把L1体积指向M2，因此可形成字段依赖；删去该关系原句的变体只能记录影响范围未知。",
+    "handoff_state_after_available_text_processed": "partial",
+    "formal_adapter": "缺少已批准D02映射时阻断外部成功投影，保存内部可靠结果。"
+  },
+  "negative_variants": [
+    "去掉原文的体积关联句时，不得断言缺件影响L1体积。",
+    "不允许用315/3把单件毛重填成105 kg。",
+    "不得把provided_text.content.sha256写为不存在原件的content_hash。",
+    "不得把预处理ready或partial直接映射为解析finished、coverage.complete或handoff.complete。",
+    "不得删除未产出候选的REQ-LINE-VOLUME使结果变complete。"
+  ]
+}
